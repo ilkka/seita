@@ -1,17 +1,36 @@
 package main
 
 import (
-	"github.com/codegangsta/cli"
 	"os"
+
+	"github.com/codegangsta/cli"
+
+	"github.com/ilkka/seita/command"
 )
 
 func main() {
 	app := cli.NewApp()
-  app.Name = "seita"
-  app.Usage = "Enshrine and retrieve project skeletons"
-  app.Action = func(c *cli.Context) {
-    println("Nothing to do!")
-  }
+	app.Name = "seita"
+	app.Usage = "Enshrine and retrieve project skeletons"
+	app.EnableBashCompletion = true
+	app.Commands = []cli.Command{
+		{
+			Name:    "put",
+			Aliases: []string{"p"},
+			Usage:   "Offer up this project as a skeleton",
+			Action:  command.Put,
+		},
+		{
+			Name:    "get",
+			Aliases: []string{"g"},
+			Usage:   "Get a skeleton for a new project",
+			Action:  command.Get,
+		},
+	}
 
-  app.Run(os.Args)
+	app.Action = func(c *cli.Context) {
+		println("Nothing to do!")
+	}
+
+	app.Run(os.Args)
 }
