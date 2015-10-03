@@ -13,7 +13,7 @@ import (
 
 // Config is the unmarshaled form of the configuration.
 type Config struct {
-	repo string
+	Repo string
 }
 
 // Make sure a basic configuration exists.
