@@ -6,6 +6,7 @@ import (
 	"github.com/codegangsta/cli"
 
 	"github.com/ilkka/seita/command"
+	"github.com/ilkka/seita/config"
 )
 
 func main() {
@@ -31,6 +32,31 @@ func main() {
 			Aliases: []string{"g"},
 			Usage:   "Get a skeleton for a new project",
 			Action:  command.Get,
+		},
+		{
+			Name:    "config",
+			Aliases: []string{"c"},
+			Usage:   "Manipulate configuration",
+			Subcommands: []cli.Command{
+				{
+					Name:    "set",
+					Aliases: []string{"s"},
+					Usage:   "Set configuration variable value",
+					Action:  config.Set,
+				},
+				{
+					Name:    "get",
+					Aliases: []string{"g"},
+					Usage:   "Get configuration variable value",
+					Action:  config.Get,
+				},
+				{
+					Name:    "list",
+					Aliases: []string{"l"},
+					Usage:   "List configuration variables",
+					Action:  config.List,
+				},
+			},
 		},
 	}
 
