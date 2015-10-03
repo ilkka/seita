@@ -1,14 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path"
 
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/viper"
-	"github.com/ukautz/clif"
+
+	"github.com/ilkka/seita/cli"
 )
 
 // Config is the unmarshaled form of the configuration.
@@ -60,15 +60,13 @@ func write() {
 
 // Take care of asking user to provide initial config
 func initializeConfig() {
-	out := clif.NewOutput(nil, clif.NewDefaultFormatter(clif.DefaultStyles))
-	in := clif.NewDefaultInput(nil, out)
-	out.Printf("Initial configuration:\n")
+	cli.Printf("Initial configuration:\n")
 
-	in.Ask("What is the location of your seita repo? ", func(val string) error {
+	cli.Ask("What is the location of your seita repo? ", func(val string) error {
 		if len(val) > 0 {
 			viper.Set("repo", val)
 			return nil
 		}
-		return fmt.Errorf("This value is required")
+		return cli.Errorf("This value is required")
 	})
 }

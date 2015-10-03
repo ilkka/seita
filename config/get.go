@@ -1,12 +1,14 @@
 package config
 
 import (
-	"log"
+	ccli "github.com/codegangsta/cli"
+	"github.com/spf13/viper"
 
-	"github.com/codegangsta/cli"
+	"github.com/ilkka/seita/cli"
 )
 
 // Get config value
-func Get(c *cli.Context) {
-	log.Printf("Get value of %v", c.Args().First())
+func Get(c *ccli.Context) {
+	name := c.Args().First()
+	cli.Printf("%s\n", viper.GetString(name))
 }
