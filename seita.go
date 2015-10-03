@@ -1,13 +1,22 @@
 package main
 
 import (
-	"os"
+	"fmt"
 
 	"github.com/codegangsta/cli"
 
 	"github.com/ilkka/seita/command"
 	"github.com/ilkka/seita/config"
 )
+
+func requireArgs(cmd string, num int) func(*cli.Context) error {
+	return func(c *cli.Context) error {
+		if len(c.Args()) != num {
+			return fmt.Errorf("%s requires %d arguments", cmd, num)
+		}
+		return nil
+	}
+}
 
 func main() {
 	app := cli.NewApp()
@@ -32,6 +41,7 @@ func main() {
 			Aliases: []string{"g"},
 			Usage:   "Get a skeleton for a new project",
 			Action:  command.Get,
+			Before:  requireArgs("get", 1),
 		},
 		{
 			Name:    "config",
@@ -43,12 +53,14 @@ func main() {
 					Aliases: []string{"s"},
 					Usage:   "Set configuration variable value",
 					Action:  config.Set,
+					Before:  requireArgs("set", 2),
 				},
 				{
 					Name:    "get",
 					Aliases: []string{"g"},
 					Usage:   "Get configuration variable value",
 					Action:  config.Get,
+					Before:  requireArgs("get", 1),
 				},
 				{
 					Name:    "list",
@@ -61,8 +73,8 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) {
-		println("Nothing to do!")
+		cli.ShowAppHelp(c)
 	}
 
-	app.Run(os.Args)
+	app.RunAndExitOnError()
 }
