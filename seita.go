@@ -13,6 +13,12 @@ func main() {
 	app.Name = "seita"
 	app.Usage = "Enshrine and retrieve project skeletons"
 	app.EnableBashCompletion = true
+	app.Authors = []cli.Author{
+		{
+			Name:  "Ilkka Laukkanen",
+			Email: "ilkka@ilkka.io",
+		},
+	}
 	app.Commands = []cli.Command{
 		{
 			Name:    "put",
