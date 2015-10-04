@@ -3,8 +3,10 @@ package command
 import (
 	"log"
 	"os"
+	"path"
 
 	"github.com/codegangsta/cli"
+	"github.com/hoisie/mustache"
 
 	"github.com/ilkka/seita/config"
 	"github.com/ilkka/seita/ui"
@@ -20,16 +22,39 @@ func Make(c *cli.Context) {
 	template := ui.Choose("Which template?", choices)
 
 	os.Mkdir(projectName, 0755)
-	ui.Printf("Would now populate %s with %s\n", projectName, template)
-	// populate with skeleton, replacing name
+
+	ctx := map[string]string{"projectname": projectName}
+	populateDir(projectName, template, ctx)
+}
+
+func populateDir(dir string, template string, context map[string]string) {
+	tpldir := path.Join(config.GetRepoPath(), template)
+	files, err := getDirContents(tpldir)
+	if err != nil {
+		log.Fatalf("Could not get contents of template %s: %s", template, err)
+	}
+	for index := 0; index < len(files); index++ {
+		fn := files[index]
+		content := mustache.RenderFile(path.Join(tpldir, fn), context)
+		f, err := os.Create(path.Join(dir, fn))
+		if err != nil {
+			log.Fatalf("Could not create %s: %s", fn, err)
+		}
+		f.WriteString(content)
+		f.Close()
+	}
+}
+
+func getDirContents(path string) (contents []string, err error) {
+	d, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("Could not open %s: %s", path, err)
+	}
+	return d.Readdirnames(0)
 }
 
 func getTemplates() []string {
-	d, err := os.Open(config.GetRepoPath())
-	if err != nil {
-		log.Fatalf("Could not open repo: %s", err)
-	}
-	names, err := d.Readdirnames(0)
+	names, err := getDirContents(config.GetRepoPath())
 	if err != nil {
 		log.Fatalf("Could not read templates: %s", err)
 	}
