@@ -5,68 +5,69 @@ import (
 	"os"
 	"path"
 
-	"github.com/BurntSushi/toml"
-	"github.com/spf13/viper"
+	"github.com/libgit2/git2go"
 
-	"github.com/ilkka/seita/cli"
+	"github.com/ilkka/seita/ui"
 )
 
-// Config is the unmarshaled form of the configuration.
-type Config struct {
-	Repo string
+var repository *git.Repository
+
+// GetSeitaPath returns the full path of the directory where all
+// seita files are kept.
+func GetSeitaPath() string {
+	return path.Join(os.ExpandEnv("$HOME"), ".seita")
+}
+
+// GetRepoURL returns the URL to the repository.
+func GetRepoURL() string {
+	return "/Users/ilau/src/seitarepo"
+}
+
+// GetRepoPath returns the directory where the repo should be checked out.
+func GetRepoPath() string {
+	return path.Join(GetSeitaPath(), "repo")
 }
 
 // Make sure a basic configuration exists.
 func init() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath("$HOME/.seita")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		initializeConfig()
-		write()
+	if !repoIsCloned() {
+		repository = cloneRepo()
+	} else {
+		repository = openRepo()
+		updateRepo()
 	}
 }
 
-// GetRuntimeConfig returns runtime configuration.
-func GetRuntimeConfig() (cfg Config) {
-	err := viper.Unmarshal(&cfg)
-	if err != nil {
-		log.Fatalf("Error unmarshaling config: %s", err)
+func repoIsCloned() bool {
+	fileinfo, err := os.Stat(path.Join(GetRepoPath(), ".git"))
+	if err == nil && fileinfo.IsDir() {
+		return true
 	}
-	return cfg
+	return false
 }
 
-// write writes configuration to user config file.
-func write() {
-	cfg := GetRuntimeConfig()
-
-	cfgdir := path.Join(os.ExpandEnv("$HOME"), ".seita")
-	err := os.MkdirAll(cfgdir, 0755)
+func openRepo() *git.Repository {
+	repo, err := git.OpenRepository(GetRepoPath())
 	if err != nil {
-		log.Fatalf("Could not create directory ~/.seita: %s", err)
+		log.Fatalf("Could not open seita repo: %s", err)
 	}
-
-	cfgfilename := path.Join(cfgdir, "config.toml")
-	f, err := os.Create(cfgfilename)
-	if err != nil {
-		log.Fatalf("Could not create file %s", cfgfilename)
-	}
-
-	defer f.Close()
-	enc := toml.NewEncoder(f)
-	enc.Encode(cfg)
+	return repo
 }
 
-// Take care of asking user to provide initial config
-func initializeConfig() {
-	cli.Printf("Initial configuration:\n")
+func updateRepo() {
+	ui.Printf("Updating seita repo...\n")
+	origin, err := repository.Remotes.Lookup("origin")
+	if err != nil {
+		log.Fatalf("Could not find origin for repo: %s", err)
+	}
+	err = origin.Fetch([]string{}, &git.FetchOptions{}, "")
+}
 
-	cli.Ask("What is the location of your seita repo? ", func(val string) error {
-		if len(val) > 0 {
-			viper.Set("repo", val)
-			return nil
-		}
-		return cli.Errorf("This value is required")
-	})
+func cloneRepo() *git.Repository {
+	ui.Printf("Cloning seita repo...\n")
+	repo, err := git.Clone(GetRepoURL(), GetRepoPath(), &git.CloneOptions{})
+	if err != nil {
+		log.Fatalf("Could not clone seita repo: %s", err)
+	}
+	return repo
 }

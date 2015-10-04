@@ -36,10 +36,10 @@ func main() {
 			Action:  command.Put,
 		},
 		{
-			Name:    "get",
-			Aliases: []string{"g"},
-			Usage:   "Get a skeleton for a new project",
-			Action:  command.Get,
+			Name:    "make",
+			Aliases: []string{"m"},
+			Usage:   "Make a new project based on a skeleton",
+			Action:  command.Make,
 			Before:  requireArgs("get", 1),
 		},
 		{

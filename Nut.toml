@@ -10,3 +10,5 @@ authors = ["Ilkka Laukkanen <ilkka@ilkka.io>"]
 "github.com/codegangsta/cli" = ""
 "github.com/spf13/viper" = ""
 "github.com/ukautz/clif" = ""
+"github.com/google/go-github/github" = ""
+"github.com/libgit2/git2go" = ""
