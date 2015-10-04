@@ -1,0 +1,12 @@
+[application]
+
+name = "seita"
+version = "0.0.1"
+authors = ["Ilkka Laukkanen <ilkka@ilkka.io>"]
+
+[dependencies]
+
+"github.com/BurntSushi/toml" = ""
+"github.com/codegangsta/cli" = ""
+"github.com/spf13/viper" = ""
+"github.com/ukautz/clif" = ""
