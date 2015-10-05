@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 
 	"github.com/codegangsta/cli"
 	"github.com/hoisie/mustache"
@@ -58,7 +59,14 @@ func getTemplates() []string {
 	if err != nil {
 		log.Fatalf("Could not read templates: %s", err)
 	}
-	return names
+	var templates []string
+	ignore := regexp.MustCompile("^.git$")
+	for idx := 0; idx < len(names); idx++ {
+		if !ignore.MatchString(names[idx]) {
+			templates = append(templates, names[idx])
+		}
+	}
+	return templates
 }
 
 func makeChoiceMap(templates []string) map[string]string {
